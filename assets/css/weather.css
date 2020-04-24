@@ -1,0 +1,22 @@
+header {
+  background-color: blue;
+  color: white;
+}
+
+ul {
+  background-color: lightblue;
+  margin-left: 10px;
+  list-style-type: none;
+
+}
+
+li {
+  font-size: 16px;
+  border: solid lightgray;
+  background-color: white;
+}
+
+.cities {
+  background-color: lightblue;
+  margin-left: 10px;
+}
