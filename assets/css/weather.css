@@ -5,7 +5,7 @@ header {
 
 ul {
   background-color: lightblue;
-  margin-left: 10px;
+  margin-left: 5px;
   list-style-type: none;
 
 }
@@ -16,7 +16,21 @@ li {
   background-color: white;
 }
 
+.container {
+  width: 100%;
+}
+
 .cities {
   background-color: lightblue;
-  margin-left: 10px;
+  margin-left: 5px;
+}
+
+.details {
+  background-color: lightblue;
+  margin-left: 5px;
+
+}
+
+.details-top {
+  display: inline;
 }
