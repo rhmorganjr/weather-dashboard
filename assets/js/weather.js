@@ -1,5 +1,5 @@
 let cityList = document.getElementById('city-list');
-
+//http://openweathermap.org/img/wn/10d@2x.png
 
 function initializeStorage() {
   let primer = [{'city':'Austin', 'cityId':'', }, {'city':'Anaheim', 'cityId':''}];
@@ -35,6 +35,7 @@ function searchHandler(e) {
   let city = document.getElementById('searchCity').value;
 console.log("sH city="+city);
 console.log('https://api.openweathermap.org/data/2.5/weather?q=' + city + '&APPID=38502b70b289d62a156e29aa933997f8');
+  
   fetch('https://api.openweathermap.org/data/2.5/weather?q=' 
     + city 
     + ',us&APPID=38502b70b289d62a156e29aa933997f8&units=imperial')
@@ -47,14 +48,20 @@ console.log('https://api.openweathermap.org/data/2.5/weather?q=' + city + '&APPI
     console.log("name="+response.name);
     console.log("feels="+response.main.feels_like);
     console.log("temp = "+response.main.temp);
+    console.log("icon="+response.weather[0].icon);
+    console.log("lat, lon="+response.coord.lat+", "+response.coord.lon);
 
     let detailCity = document.getElementById('detailCity');
-    detailCity.textContent = response.name;
-
-    let currentDateTime = document.getElementById('currentDateTime');
-    let tempDate = moment();//response.dt;
-    console.log("tempDate="+tempDate);
-    currentDateTime.textContent = tempDate.format('MM/DD/YYYY');
+    //let currentDateTime = document.getElementById('currentDateTime');
+    let tempDate = moment();
+    detailCity.textContent = response.name + "  (" + tempDate.format('MM/DD/YYYY') + ")  ";
+    let cityDateImg = document.querySelector('.city-date-img');
+    let imgEl = document.createElement('img');
+    imgEl.setAttribute('src', 'http://openweathermap.org/img/wn/' + response.weather[0].icon + '@2x.png');
+    imgEl.setAttribute('height', 32);
+    imgEl.setAttribute('width', 32);
+    cityDateImg.appendChild(imgEl);
+    //currentDateTime.textContent = tempDate.format('MM/DD/YYYY');
 
     let currentTemp = document.getElementById('currentTemp');
     currentTemp.textContent = "Current Temp: " + Math.round(response.main.temp) + " F";
@@ -64,6 +71,19 @@ console.log('https://api.openweathermap.org/data/2.5/weather?q=' + city + '&APPI
 
     let windSpeed = document.getElementById('windSpeed');
     windSpeed.textContent = "Wind Speed: " + response.wind.speed + " MPH";
+
+    const uvFetch = 'https://api.openweathermap.org/data/2.5/uvi/forecast?appid=38502b70b289d62a156e29aa933997f8' +
+    '&lat=' + response.coord.lat + '&lon=' + response.coord.lon;
+    console.log("uvF="+uvFetch);
+    return fetch(uvFetch);
+  })
+  .then((uvResponse) => {
+    return uvResponse.json();
+  })
+  .then (uvResponse => {
+    console.log("uv val="+uvResponse[0].value);
+    let uv =document.getElementById('uv');
+    uv.textContent = "UV Index: " + uvResponse[0].value;
   });
 }
 

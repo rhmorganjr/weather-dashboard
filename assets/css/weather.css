@@ -34,3 +34,12 @@ li {
 .details-top {
   display: inline;
 }
+
+.city-date-img {
+  display: inline;
+}
+
+#detailCity {
+  font-size: 30px;
+  font-style: bold;
+}
