@@ -40,3 +40,21 @@ li {
   font-size: 30px;
   font-style: bold;
 }
+
+#five-day-forecast {
+  display: flex;
+}
+
+.card {
+  font-size: 11px;
+  text-align: left;
+  padding: 0;
+  margin: 10px;
+  background-color: blue;
+  color: white;
+}
+
+#fiveDay {
+  margin: 10px;
+  padding: 20px 0 0 0;
+}

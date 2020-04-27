@@ -1,23 +1,45 @@
 let cityList = document.getElementById('city-list');
 let cityDateImg = document.getElementById('cityDateImg');
-
+let fiveDayForecast = document.getElementById('five-day-forecast');
+let fiveDay = document.getElementById('fiveDay');
 
 function listItemHandler(e) {
   e.preventDefault();
 
-  console.log(e.target.attributes.value);
   let loc = document.getElementById('searchCity');
   loc.value = e.target.attributes.value.value;
+  // if city from list is selected, fire-off search
+  searchHandler(e);
+}
+
+function saveCityNameToLocalStorage(city) {
+  let isPresent = false;
+  let cityStore = JSON.parse(localStorage.getItem('weatherDashboard')) || [];
+  for (let i = 0; i < cityStore.length; i++) {
+    if (city === cityStore[i]) {
+      isPresent = true;
+      break;
+    }
+  }
+
+  if (!isPresent && city != null) {
+    console.log("cS="+cityStore);
+    cityStore.push(city);
+    localStorage.setItem('weatherDashboard', JSON.stringify(cityStore));
+
+    loadWeatherStorage();
+  }
+
 }
 
 function loadWeatherStorage() {
-  let cities = JSON.parse( localStorage.getItem('weatherDashboard'));
-
+  let cities = JSON.parse( localStorage.getItem('weatherDashboard')) || [];
+  cityList.textContent = "";
+console.log("cs="+cities);
   for (let i = 0; i < cities.length; i++) {
-    console.log(cities[i].city);
     let city = document.createElement('li');
-    city.textContent = cities[i].city;
-    city.setAttribute( 'value', cities[i].city);
+    city.textContent = cities[i];
+    city.setAttribute( 'value', cities[i]);
     city.addEventListener('click', listItemHandler);
     cityList.appendChild(city);
   }
@@ -25,10 +47,8 @@ function loadWeatherStorage() {
 
 function searchHandler(e) {
   e.preventDefault();
-  console.log("search");
+
   let city = document.getElementById('searchCity').value;
-console.log("sH city="+city);
-console.log('https://api.openweathermap.org/data/2.5/weather?q=' + city + '&APPID=38502b70b289d62a156e29aa933997f8');
   
   fetch('https://api.openweathermap.org/data/2.5/weather?q=' 
     + city 
@@ -37,26 +57,21 @@ console.log('https://api.openweathermap.org/data/2.5/weather?q=' + city + '&APPI
     return response.json();
   })
   .then((response) => {
-    console.log(response);
-    console.log("id="+response.id);
-    console.log("name="+response.name);
-    console.log("feels="+response.main.feels_like);
-    console.log("temp = "+response.main.temp);
-    console.log("icon="+response.weather[0].icon);
-    console.log("lat, lon="+response.coord.lat+", "+response.coord.lon);
-
+    console.log("rep="+response);
     let tempDate = moment();
     cityDateImg.textContent = response.name + "  (" + tempDate.format('MM/DD/YYYY') + ")  ";
-    
+    // save city in list if not already there
+    if (response.cod === "404") {
+      console.log("cod = "+response.cod);
+    }
+    saveCityNameToLocalStorage(response.name);
+
     let imgEl = document.createElement('img');
     imgEl.setAttribute('src', 'http://openweathermap.org/img/wn/' + response.weather[0].icon + '@2x.png');
     imgEl.setAttribute('height', 32);
     imgEl.setAttribute('width', 32);
     cityDateImg.appendChild(imgEl);
   
-    //fetch('https://api.openweathermap.org/data/2.5/onecall?lat='
-    //+ response.coord.lat + '&lon=' + response.coord.lon + '&appid=38502b70b289d62a156e29aa933997f8&units=imperial');
-
     return fetch('https://api.openweathermap.org/data/2.5/onecall?lat='
     + response.coord.lat + '&lon=' + response.coord.lon 
     + '&appid=38502b70b289d62a156e29aa933997f8&units=imperial');
@@ -66,7 +81,6 @@ console.log('https://api.openweathermap.org/data/2.5/weather?q=' + city + '&APPI
     return oneCallResponse.json();
   })
   .then (oneCallResponse => {
-    console.log("1callR="+oneCallResponse);
     let currentTemp = document.getElementById('currentTemp');
     currentTemp.textContent = "Current Temp: " + Math.round(oneCallResponse.current.temp) + " F";
 
@@ -76,21 +90,40 @@ console.log('https://api.openweathermap.org/data/2.5/weather?q=' + city + '&APPI
     let windSpeed = document.getElementById('windSpeed');
     windSpeed.textContent = "Wind Speed: " + oneCallResponse.current.wind_speed + " MPH";
 
-    console.log("oneCall: "+oneCallResponse);
-    console.log("uv val="+oneCallResponse.current.uvi);
     let uv =document.getElementById('uv');
     uv.textContent = "UV Index: " + oneCallResponse.current.uvi;
 
+    // build 5 day forecast
+    fiveDay.textContent = "5-Day Forecast:";
+    for (let i = 1; i <= 5; i++) {
+      let date = new Date(oneCallResponse.daily[i].dt * 1000);
 
-    console.log("pressure="+oneCallResponse.daily[0].pressure);
+      let card = document.getElementById("card-"+i);
+      card.textContent = "";
+      let cardBody = document.createElement('div');
+      cardBody.setAttribute('class', 'card-body');
+      let cardTitle = document.createElement('p');
+      cardTitle.setAttribute('class', 'card-title');
+      cardTitle.textContent = date.toLocaleDateString();
+      cardBody.appendChild(cardTitle);
 
-    console.log("dt="+oneCallResponse.current.dt);
-    let date = new Date(oneCallResponse.daily[0].dt * 1000);
-    console.log((new Date(oneCallResponse.daily[1].dt * 1000)).toLocaleString());
-    console.log((new Date(oneCallResponse.daily[2].dt * 1000)).toLocaleString());
-    console.log((new Date(oneCallResponse.daily[3].dt * 1000)).toLocaleString());
-    console.log((new Date(oneCallResponse.daily[4].dt * 1000)).toLocaleString());
-    console.log((new Date(oneCallResponse.daily[5].dt * 1000)).toLocaleString());
+      let imgEl = document.createElement('img');
+      imgEl.setAttribute('src', 'http://openweathermap.org/img/wn/' + oneCallResponse.daily[i].weather[0].icon + '@2x.png');
+      imgEl.setAttribute('height', 32);
+      imgEl.setAttribute('width', 32);
+      cardBody.appendChild(imgEl);
+
+      let dayTemp = document.createElement('p');
+      dayTemp.textContent = "Temp: " + Math.round(oneCallResponse.daily[i].temp.day) + " F";
+      cardBody.appendChild(dayTemp);
+
+      let dayHumidity = document.createElement('p');
+      dayHumidity.textContent = "Humidity: " + oneCallResponse.daily[i].humidity + "%";
+      cardBody.appendChild(dayHumidity);
+  
+      card.appendChild(cardBody);
+      fiveDayForecast.appendChild(card);
+      }
   });
 }
 
@@ -99,16 +132,4 @@ console.log('https://api.openweathermap.org/data/2.5/weather?q=' + city + '&APPI
 document.getElementById("search").addEventListener('click', searchHandler);
 
 loadWeatherStorage();
-
-
-function initializeStorage() {
-  let primer = [{'city':'Austin', 'lastSearch':''},
-            {'city':'Anaheim', 'lastSearch':''},
-            {'city':'San Antonio', 'lastSearch':''},
-            {'city':'Paris', 'lastSearch':''}
-  ];
-  localStorage.setItem("weatherDashboard", JSON.stringify(primer));
-}
-
-//initializeStorage();
 
