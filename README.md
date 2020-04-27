@@ -6,6 +6,13 @@ This week's challenge was to create a weather display for any sity entered. Citi
 
 Initially used the weather and forecast apis, but switched over to the oneCall api. Works great but do need the cities lattitude and longitude coordinates.
 
+Set the color for the UV Index base on:
+0-2: color = 'green' (low)
+3-5  color = 'yellow' (moderate)
+6-7  color = 'orange' (high)
+8-10: color = 'lightcoral' (very high)
+11   color = 'red' (extreme)
+
 A couple of enhancements that require future code changes are; show the description when hovering over the weather icon, show min and max for each day, display direction the wind is coming from based on the degrees number(0-360) and include feels like conditions.
 
 Enjoyed this challenge the best so far. My only regret was not switching to the oneCall api sooner.

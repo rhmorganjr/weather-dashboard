@@ -23,7 +23,6 @@ function saveCityNameToLocalStorage(city) {
   }
 
   if (!isPresent && city != null) {
-    console.log("cS="+cityStore);
     cityStore.push(city);
     localStorage.setItem('weatherDashboard', JSON.stringify(cityStore));
 
@@ -35,7 +34,6 @@ function saveCityNameToLocalStorage(city) {
 function loadWeatherStorage() {
   let cities = JSON.parse( localStorage.getItem('weatherDashboard')) || [];
   cityList.textContent = "";
-console.log("cs="+cities);
   for (let i = 0; i < cities.length; i++) {
     let city = document.createElement('li');
     city.textContent = cities[i];
@@ -43,6 +41,25 @@ console.log("cs="+cities);
     city.addEventListener('click', listItemHandler);
     cityList.appendChild(city);
   }
+}
+
+function setBackground(uvi) {
+  let color = 'white';
+  switch(Math.round(uvi)) {
+    case 0:
+    case 1:
+    case 2: color = 'green'; break;
+    case 3:
+    case 4:
+    case 5: color = 'yellow'; break;
+    case 6:
+    case 7: color = 'orange'; break;
+    case 8:
+    case 9:
+    case 10: color = 'lightcoral'; break
+    case(11): color = 'red';
+  }
+  return color;
 }
 
 function searchHandler(e) {
@@ -57,12 +74,11 @@ function searchHandler(e) {
     return response.json();
   })
   .then((response) => {
-    console.log("rep="+response);
     let tempDate = moment();
     cityDateImg.textContent = response.name + "  (" + tempDate.format('MM/DD/YYYY') + ")  ";
     // save city in list if not already there
     if (response.cod === "404") {
-      console.log("cod = "+response.cod);
+      
     }
     saveCityNameToLocalStorage(response.name);
 
@@ -91,6 +107,8 @@ function searchHandler(e) {
     windSpeed.textContent = "Wind Speed: " + oneCallResponse.current.wind_speed + " MPH";
 
     let uv =document.getElementById('uv');
+    color = setBackground(oneCallResponse.current.uvi);
+    uv.setAttribute('style',' color:black; background: ' + color +';');
     uv.textContent = "UV Index: " + oneCallResponse.current.uvi;
 
     // build 5 day forecast
